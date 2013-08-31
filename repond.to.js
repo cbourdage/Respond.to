@@ -1,10 +1,16 @@
+/**
+ * array(
+ * 		'960' : array(object, object),
+ *      '760' : array(object, object)
+ * );
+ */
 (function () {
 	// Save reference to the global object.
 	/** @var window */
 	var root = this;
 	var Respond = root.Respond = {};
 	Respond.debug = true;
-	Respond.version = '0.1.1';
+	Respond.version = '0.1.2';
 
 	/**
 	 * pushes a new object based on a key onto the media stack
@@ -19,11 +25,6 @@
 		key = this._purify(key);
 		this._mediaStack || (this._mediaStack = {});
 		this._mediaStack[key] || (this._mediaStack[key] = {mql: null, items: []});
-
-		/*if (!root.matchMedia) {
-			console.log('ie?');
-			return this;
-		}*/
 
 		if (!this._mediaStack[key].mql) {
 			this._mediaStack[key].mql = root.matchMedia(mqString);

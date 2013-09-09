@@ -10,7 +10,7 @@
 	var root = this;
 	var Respond = root.Respond = {};
 	Respond.debug = true;
-	Respond.version = '0.1.2';
+	Respond.version = '0.1.3';
 
 	/**
 	 * pushes a new object based on a key onto the media stack
@@ -142,11 +142,16 @@
 		var _temp = [];
 		if (!key) {
 			for (var key in this._mediaStack) {
+				if (!this._mediaStack[key]) {
+					continue;
+				}
+				
 				for (var i = 0; i < this._mediaStack[key].items.length; i++) {
 					_temp.push(this._mediaStack[key].items[i]);
 				}
 			}
 		} else {
+            key = this._purify(key);
 			if (!this._mediaStack[key]) {
 				return;
 			}
@@ -240,14 +245,14 @@
 	 */
 	Respond.call = function (ns, type, media) {
 		try {
-			if (media) {
-				(this._retrieve(ns, media))[type](this);
-			} else if(type) {
-				(this._retrieve(ns))[type](this);
-			} else {
-				console.log(this._mediaStack[(this._retrieve(ns)).media]);
-				this._respond(this._mediaStack[(this._retrieve(ns)).media].mql, ns);
-			}
+            if (media && type) {
+                (this._retrieve(ns, media))[type](this);
+            } else if (type) {
+                (this._retrieve(ns))[type](this);
+            } else {
+                var key = this._purify((this._retrieve(ns)).media);
+                this._respond(this._mediaStack[key].mql, ns);
+            }
 		} catch (e) {
 			console.error(e);
 		}

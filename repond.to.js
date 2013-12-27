@@ -1,48 +1,50 @@
+;
 /**
+ * Respond.to.js
+ * Copyright 2013 Collin Bourdage.
+ *
+ * Lightweight javascript library to help facilitate javascript development
+ * for responsive development. Implements simple api to call, retrieve, and
+ * add callbacks to a stack of media query objects.
+ *
+ * Stack object looks like the following:
  * array(
  * 		'960' : array(object, object),
  *      '760' : array(object, object)
- * );
+ * ));
  */
-(function () {
-	// Save reference to the global object.
+(function() {
 	/** @var window */
 	var root = this;
 	var Respond = root.Respond = {};
-	Respond.debug = true;
-	Respond.version = '0.1.3';
 
 	/**
-	 * pushes a new object based on a key onto the media stack
+	 * Pushes a new object based on a key onto the media stack
 	 *
 	 * @param key String
 	 * @param obj Object
 	 * @return {*}
 	 * @private
 	 */
-	Respond._push = function (key, obj) {
+	Respond._push = function(key, obj) {
 		var mqString = key;
 		key = this._purify(key);
 		this._mediaStack || (this._mediaStack = {});
-		this._mediaStack[key] || (this._mediaStack[key] = {mql: null, items: []});
+		this._mediaStack[key] || (this._mediaStack[key] = {mql : null, items : []});
 
 		if (!this._mediaStack[key].mql) {
 			this._mediaStack[key].mql = root.matchMedia(mqString);
 			this._mediaStack[key].mql.addListener(respondTo);
 
 			/**
-			 * store array key on the mql object for lookup later because of an
-			 * inconsistancy with rules:
-			 *      screen and (min-width: 700px) and (max-width: 900px)
-			 * will get convered to
-			 *      screen and (max-width: 900px) and (min-width: 700px)
-			 * when instantiating the matchMedia object.
+			 * Store array key on the mql object for lookup later because of an
+			 * inconsistency with how browsers handle media queries after instantiation:
+			 *  	screen and (min-width: 700px) and (max-width: 900px)
+			 * is converted to the following on the mql object:
+			 *  	screen and (max-width: 900px) and (min-width: 700px)
 			 */
 			this._mediaStack[key].mql.keyValue = key;
 		}
-
-		obj.hasMatched || (obj.hasMatched = false);
-		obj.hasNotMatched || (obj.hasNotMatched = false);
 
 		this._mediaStack[key].items.push(obj);
 		return this;
@@ -60,7 +62,7 @@
 	Respond._purify = function (key, replacement) {
 		replacement || (replacement = '_');
 		return key.toLowerCase().replace(/[\s\-:()]/g, replacement).replace(/__/g, replacement).replace(/(_)$/, '');
-	}
+	};
 
 	/**
 	 * Proxy function for adding listener to media query list.
@@ -74,24 +76,26 @@
 	/**
 	 * Responds to a given media query list object
 	 *
-	 * @param mql window.MediaQueryList
 	 * @private
+	 * @param mql window.MediaQueryList
+ 	 * @param namespace String
 	 */
-	Respond._respond = function (mql, namespace) {
+	Respond._respond = function(mql, namespace) {
 		var key = mql.keyValue;
 
+		// ie9 can't store extra data on the mql object, so we purify the mql.media string
 		if (navigator.userAgent.match(/MSIE 9.0/)) {
 			key = this._purify(mql.media);
 		}
 
+		// If ie8, lets run the "default" condition - we ain't supportin' it, sorry.
 		if (navigator.userAgent.match(/MSIE 8.0/)) {
 			for (var i = 0; i < this._mediaStack[key].items.length; i++) {
-				var _item = this._mediaStack[key].items[i];
-				if (typeof _item['if'] === 'function') {
-					if (!namespace) {
-						_item['if']();
-					} else if (_item['namespace'] == namespace) {
-						_item['if']();
+				var _item = this._mediaStack[key].items[i],
+					_default = _item['default'] || 'if';
+				if (typeof _item[_default] === 'function') {
+					if (!namespace || _item['namespace'] == namespace) {
+						_item[_default]();
 					}
 				}
 			}
@@ -104,9 +108,7 @@
 			for (var i = 0; i < this._mediaStack[key].items.length; i++) {
 				var _item = this._mediaStack[key].items[i];
 				if (typeof _item['if'] === 'function') {
-					if (!namespace) {
-						_item['if']();
-					} else if (_item['namespace'] == namespace) {
+					if (!namespace || _item['namespace'] == namespace) {
 						_item['if']();
 					}
 				}
@@ -115,9 +117,7 @@
 			for (var i = 0; i < this._mediaStack[key].items.length; i++) {
 				var _item = this._mediaStack[key].items[i];
 				if (typeof _item['else'] === 'function') {
-					if (!namespace) {
-						_item['else']();
-					} else if (_item['namespace'] == namespace) {
+					if (!namespace || _item['namespace'] == namespace) {
 						_item['else']();
 					}
 				}
@@ -134,27 +134,18 @@
 	 * @return {*}
 	 * @private
 	 */
-	Respond._retrieve = function (ns, key) {
-		if (typeof this._mediaStack === 'undefined') {
-			return;
-		}
+	Respond._retrieve = function(ns, key) {
+		if (typeof this._mediaStack === 'undefined') return;
 
 		var _temp = [];
 		if (!key) {
 			for (var key in this._mediaStack) {
-				if (!this._mediaStack[key]) {
-					continue;
-				}
-				
 				for (var i = 0; i < this._mediaStack[key].items.length; i++) {
 					_temp.push(this._mediaStack[key].items[i]);
 				}
 			}
 		} else {
-            key = this._purify(key);
-			if (!this._mediaStack[key]) {
-				return;
-			}
+			if (!this._mediaStack[key]) return;
 			_temp = this._mediaStack[key].items;
 		}
 
@@ -172,7 +163,7 @@
 	 * @param obj Object
 	 * @return {*}
 	 */
-	Respond.to = function (obj) {
+	Respond.to = function(obj) {
 		if (obj.length) {
 			for (var i = 0; i < obj.length; i++) {
 				this.to(obj[i]);
@@ -189,11 +180,11 @@
 	 * Must be called to mark all ready and to make the initial
 	 * media respond call.
 	 */
-	Respond.ready = function () {
+	Respond.ready = function() {
 		for (var key in this._mediaStack) {
 			this._respond(this._mediaStack[key].mql);
 		}
-	}
+	};
 
 	/**
 	 * Returns the media stack object
@@ -201,7 +192,7 @@
 	 * @param media String
 	 * @return {*}
 	 */
-	Respond.getStack = function (media) {
+	Respond.getStack = function(media) {
 		return this._mediaStack[media] || this._mediaStack;
 	};
 
@@ -213,11 +204,9 @@
 	 * @param ns String (optional)
 	 * @return {*}
 	 */
-	Respond.remove = function (media, ns) {
+	Respond.remove = function(media, ns) {
 		//media = this._purify(media);
-		if (!this._mediaStack.length && !this._mediaStack[media]) {
-			return;
-		}
+		if (!this._mediaStack.length && !this._mediaStack[media]) return;
 
 		if (!ns) {
 			this._mediaStack[media].mql.removeListener(respondTo);
@@ -240,19 +229,18 @@
 	 *
 	 * @param ns String
 	 * @param type String
-	 * @param media String (optional)
+ 	 * @param media String (optional)
 	 * @return {*}
 	 */
-	Respond.call = function (ns, type, media) {
+	Respond.call = function(ns, type, media) {
 		try {
-            if (media && type) {
-                (this._retrieve(ns, media))[type](this);
-            } else if (type) {
-                (this._retrieve(ns))[type](this);
-            } else {
-                var key = this._purify((this._retrieve(ns)).media);
-                this._respond(this._mediaStack[key].mql, ns);
-            }
+			if (media) {
+				(this._retrieve(ns, media))[type](this);
+			} else if(type) {
+				(this._retrieve(ns))[type](this);
+			} else {
+				this._respond(this._mediaStack[(this._retrieve(ns)).media].mql, ns);
+			}
 		} catch (e) {
 			console.error(e);
 		}

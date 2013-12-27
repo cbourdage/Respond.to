@@ -1,0 +1,14 @@
+{
+	"name" : "Respond.to",
+	"description" : "Lightweight javascript library to facilitate responsive javascript!",
+	"author" : "Collin Bourdage",
+	"version" : "2.0.0",
+	"repository" : "https://github.com/cbourdage/Respond.to",
+	"keywords" : [
+		"javascript",
+		"responsive"
+	],
+	"devDependencies" : [
+		"vendors/matchMedia.js"
+	]
+}

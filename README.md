@@ -1,7 +1,7 @@
 Respond.to
 ==========
 
-Javascript api to better manage javascript with the use of media queries. The current implementation uses window.matchmedia object to addListeners based on the media queries. When pushing new media queries onto the Respond.to callback stack make sure, for the time being, the 'if' statement is the default desktop view (this is to support ie8).
+Lightweight javascript api to better facilitate and manage javascript for responsive development with the use of media queries.
 
 
 Dependencies
@@ -14,16 +14,39 @@ Sample
 Respond.to({
 	'media' : '(max-width: 920px)',
     'namespace' : '920_if_else',
+    'default' : 'else' // ie8 fallback callback (optional - defaults to 'if' callback)
     'if' : function() {
     	document.querySelector('#matchmedia').style.backgroundColor = '#ff00cc';
-        console.log('920_if_else - if');
     },
     'else' : function() {
     	document.querySelector('#matchmedia').style.backgroundColor = '';
-        console.log(document.querySelector('#matchmedia').style.backgroundColor);
-        console.log('920_if_else - else');
     }
 });
+
+// adding by array
+Respond.to([
+	{
+		'media' : '(max-width: 760px)',
+		'namespace' : '760_alt_in_out_a',
+		'default' : 'else',
+		'if' : function() {
+			document.querySelector('#matchmedia').style.fontSize = '36px';
+		},
+		'else' : function() {
+			document.querySelector('#matchmedia').style.fontSize = '';
+		}
+	},
+	{
+		'media' : '(max-width: 760px)',
+		'namespace' : '760_alt_in_out_b',
+		'if' : function() {
+			document.querySelector('#matchmedia').style.textDecoration = 'underline';
+		},
+		'else' : function() {
+			document.querySelector('#matchmedia').style.textDecoration = '';
+		}
+	}
+]);
 
 
 // Call ready for initial state
@@ -32,8 +55,8 @@ Respond.ready();
 
 // Individual calls demonstrated here
 window.setTimeout(function() {
-        Respond.remove('(max-width: 920px)');
-        Respond.call('760_alt_in_out_b', 'else');
-        //Respond.remove('(max-width: 760px)', '760_alt_in_out_b');
+	Respond.remove('(max-width: 920px)');
+    Respond.call('760_alt_in_out_b', 'else');
+    //Respond.remove('(max-width: 760px)', '760_alt_in_out_b');
 }, 2000);
 ````

@@ -33,8 +33,12 @@
 		this._mediaStack[key] || (this._mediaStack[key] = {mql : null, items : []});
 
 		if (!this._mediaStack[key].mql) {
-			this._mediaStack[key].mql = root.matchMedia(mqString);
-			this._mediaStack[key].mql.addListener(respondTo);
+			if (root.matchMedia) {
+				this._mediaStack[key].mql = root.matchMedia(mqString);
+				this._mediaStack[key].mql.addListener(respondTo);
+			} else {
+				this._mediaStack[key].mql = {keyValue: null}; // ie8 fix
+			}
 
 			/**
 			 * Store array key on the mql object for lookup later because of an

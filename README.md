@@ -49,9 +49,6 @@ Respond.to([
 ]);
 
 
-// Call ready for initial state
-Respond.ready();
-
 
 // Individual calls demonstrated here
 window.setTimeout(function() {

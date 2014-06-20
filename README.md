@@ -14,7 +14,7 @@ Sample
 Respond.to({
 	'media' : '(max-width: 920px)',
     'namespace' : '920_if_else',
-    'default' : 'else' // ie8 fallback callback (optional - defaults to 'if' callback)
+    'fallback' : 'else' // ie8 fallback callback (optional - defaults to 'if' callback)
     'if' : function() {
     	document.querySelector('#matchmedia').style.backgroundColor = '#ff00cc';
     },
@@ -28,7 +28,7 @@ Respond.to([
 	{
 		'media' : '(max-width: 760px)',
 		'namespace' : '760_alt_in_out_a',
-		'default' : 'else',
+		'fallback' : 'else',
 		'if' : function() {
 			document.querySelector('#matchmedia').style.fontSize = '36px';
 		},

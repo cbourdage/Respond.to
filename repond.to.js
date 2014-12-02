@@ -85,7 +85,7 @@
  	 * @param namespace String
 	 */
 	Respond._respond = function(mql, namespace) {
-		var key = mql.keyValue;
+		var key = mql.keyValue || mql.target.keyValue;
 
 		// ie9 can't store extra data on the mql object, so we purify the mql.media string
 		if (navigator.userAgent.match(/MSIE 9.0/)) {

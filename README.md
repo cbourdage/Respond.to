@@ -69,7 +69,7 @@ Calls the matching namespace object and type. For instance `Respond.call('namesp
 Respond.to({
 	'media' : '(max-width: 920px)',
     'namespace' : '920_if_else',
-    'fallback' : 'else' // ie8 fallback callback (optional - defaults to 'if' callback)
+    'fallback' : 'else', // ie8 fallback callback (optional - defaults to 'if' callback)
     'if' : function() {
     	document.querySelector('#matchmedia').style.backgroundColor = '#ff00cc';
     },
@@ -106,5 +106,6 @@ Respond.to([
 
 // Individual api calls
 Respond.remove('(max-width: 920px)');
+Respond.call('760_alt_in_out_b');
 Respond.call('760_alt_in_out_b', 'else');
 ````
